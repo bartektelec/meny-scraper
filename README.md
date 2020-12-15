@@ -15,3 +15,10 @@ a Web Scraping script for getting product data like prices, product names, brand
 
 - Run script
   `yarn start` or `npm start`
+
+## To dos
+
+- [ ] Fix the product scraping module so it works with discounted products
+- [ ] Product scraping module should get the quantity out of 'description' field if the quantity isn't explicit
+- [ ] Product category scraping module for looping through a category and scraping every product info
+- [ ] More to come...
