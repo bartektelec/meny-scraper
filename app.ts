@@ -1,149 +1,33 @@
-import axios from 'axios';
+import fs from 'fs';
+
 import puppeteer from 'puppeteer';
-
-const getCategories = async (url: string) => {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-
-  await page.goto(url);
-
-  const rawData = await page.evaluate(() => {
-    const links = Array.from(
-      document.querySelectorAll(
-        '.aggregation-filter-headline>a'
-      ) as NodeListOf<HTMLAnchorElement>
-    ).map(link => ({ name: link.textContent?.trim(), href: link.href }));
-
-    return links;
-  });
-
-  await browser.close();
-
-  return rawData;
-};
-
-const getSubcategories = async (url: string) => {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-
-  await page.goto(url);
-
-  const rawData = await page.evaluate(() => {
-    const links = Array.from(
-      document.querySelectorAll(
-        '.child-category>a'
-      ) as NodeListOf<HTMLAnchorElement>
-    ).map(link => ({ name: link.textContent?.trim(), href: link.href }));
-
-    return links;
-  });
-
-  await browser.close();
-
-  console.log(await rawData);
-
-  return rawData;
-};
-const getProductList = async (url: string) => {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-
-  await page.goto(url);
-
-  const rawData = await page.evaluate(() => {
-    const links = Array.from(
-      document.querySelectorAll(
-        '.product-list-item>a'
-      ) as NodeListOf<HTMLAnchorElement>
-    ).map(link => {
-      const title = link.querySelector('.name-main') as HTMLDivElement;
-      return { name: title.textContent?.trim(), href: link.href };
-    });
-
-    return links;
-  });
-
-  await browser.close();
-
-  console.log(await rawData);
-
-  return rawData;
-};
-const getProductData = async (url: string) => {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-
-  await page.goto(url);
-
-  const rawData = await page.evaluate(() => {
-    const links = Array.from(
-      document.querySelectorAll(
-        '.product-list-item>a'
-      ) as NodeListOf<HTMLAnchorElement>
-    ).map(link => {
-      const title = link.querySelector('.name-main') as HTMLDivElement;
-      return { name: title.textContent?.trim(), href: link.href };
-    });
-
-    const price = (document.querySelector(
-      '.price'
-    ) as HTMLDivElement).getAttribute('content')!;
-    const title = (document.querySelector(
-      'h1>span'
-    ) as HTMLSpanElement).innerText?.trim();
-    const [unitPrice, unit] = (document.querySelector(
-      '.unit-price'
-    ) as HTMLDivElement).textContent
-      ?.trim()
-      .replace('kr ', '')
-      .replace(',', '.')
-      .split(' per ')!;
-    const additional = Array.from(
-      document.querySelectorAll('tr') as NodeListOf<HTMLTableRowElement>
-    );
-
-    const data: Record<string, string> = {};
-    additional.forEach(row => {
-      const key = row.querySelector('th')?.textContent?.trim()!;
-      const val = row.querySelector('td')?.textContent?.trim()!;
-      data[key] = val;
-    });
-
-    const timestamp = Date.now();
-
-    return {
-      price: {
-        price,
-        unitPrice,
-        priceAsNumber: parseFloat(price),
-        unitPriceAsNumber: parseFloat(unitPrice),
-      },
-      title,
-      unitPrice,
-      unit,
-      timestamp,
-      data,
-    };
-  });
-
-  await browser.close();
-
-  console.log(await rawData);
-
-  return rawData;
-};
+import KolonialService from './services/kolonial/KolonialService';
+import getSubcategories from './services/kolonial/SubcategoryScraper';
+process.setMaxListeners(Infinity); // <== Important line
 
 async function run() {
-  // const categories = await getCategories('https://www.kolonial.no/');
-  //   const subcategories = await getSubcategories(
-  //     'https://kolonial.no/kategorier/20-frukt-og-gront/'
-  //   );
-  //   await getProductList(
-  //     'https://kolonial.no/kategorier/20-frukt-og-gront/391-salater-og-kal/'
-  //   );
-  await getProductData(
-    'https://kolonial.no/produkter/27862-den-stolte-hane-kjottdeig-av-100-kyllingfilet/'
+  const browser = await puppeteer.launch({
+    args: ['--disable-gpu', '--window-size=1920x1080'],
+    headless: true,
+  });
+  const page = await browser.newPage();
+  await page.setUserAgent(
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3419.0 Safari/537.36'
   );
+
+  try {
+    const result = await KolonialService(page);
+
+    await fs.writeFileSync('kolonial.json', JSON.stringify(result.flat(2)));
+  } catch (err) {
+    await page.screenshot({
+      path: 'error.png',
+    });
+    console.log(page.url());
+    console.log(err);
+  }
+
+  browser.close();
 }
 
 run();
