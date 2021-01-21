@@ -6,7 +6,7 @@ import getSubcategories from './SubcategoryScraper';
 import getProductList from './ProductListScraper';
 
 async function getAllProducts(page: puppeteer.Page) {
-  const initialURL = 'https://meny.no/Varer/';
+  const initialURL = 'https://spar.no/nettbutikk/varer';
   const allCategories = await getCategories(page, initialURL);
 
   const subcategories: any[] = [];
