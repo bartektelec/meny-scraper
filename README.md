@@ -16,10 +16,14 @@ a Web Scraping script for getting product data like prices, product names, brand
 - Run script
   `yarn start` or `npm start`
 
+- The data will be stores as `.json` files in `data/[NOW_TIMESTAMP]/` directory
+
+- Script will exit when finished
+
 ## To dos
 
-### Kolonial Service
-
-- [ ] Handle paginated product lists
 - [ ] Assign categories to products
-- [ ] Test Service
+- [ ] Test Services
+- [ ] Find out a way to merge toghether products from different sources
+  - [ ] Compare if more than 50% of the title and subtitle is the same?
+  - [ ] Merge prices from different stores to one object

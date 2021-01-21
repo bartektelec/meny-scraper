@@ -10,7 +10,7 @@ process.setMaxListeners(Infinity); // <== Important line
 async function run() {
   const browser = await puppeteer.launch({
     args: ['--disable-gpu', '--window-size=1920x1080'],
-    headless: false,
+    headless: true,
   });
   const page = await browser.newPage();
   await page.setUserAgent(
