@@ -1,4 +1,5 @@
 import puppeteer from 'puppeteer';
+import Product from '../../interfaces/Product';
 
 const getProductList = async (
   page: puppeteer.Page,
@@ -23,7 +24,7 @@ const getProductList = async (
 
   console.log('getting list of products from meny ' + category.href);
 
-  const rawData = await page.evaluate(category => {
+  const rawData: Product[] = await page.evaluate(category => {
     const articles = Array.from(
       document.querySelectorAll(
         '.ws-product-vertical'

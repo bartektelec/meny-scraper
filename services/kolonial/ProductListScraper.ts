@@ -1,4 +1,5 @@
 import puppeteer from 'puppeteer';
+import Product from '../../interfaces/Product';
 
 const getProductList = async (
   page: puppeteer.Page,
@@ -7,14 +8,14 @@ const getProductList = async (
   await page.goto(category.href);
   await page.waitForSelector('.product-list-item');
 
-  const allData: any[] = [];
+  const allData: Product[] = [];
 
   async function loadNextPage() {
     console.log('getting list of products from kolonial ' + category.href);
 
     // eval start
     const products = await page.evaluate(category => {
-      const links = Array.from(
+      const links: Product[] = Array.from(
         document.querySelectorAll(
           '.product-list-item'
         ) as NodeListOf<HTMLAnchorElement>
@@ -55,6 +56,7 @@ const getProductList = async (
       });
       return links;
     }, category);
+
     allData.push(...products);
     // eval end
 

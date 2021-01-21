@@ -18,16 +18,23 @@ async function run() {
   );
 
   try {
-    // const result = await KolonialService(page);
-    const result = await SparService(page);
-    // const result = await getProducts(page, {
-    //   parentCategory: 'brus',
-    //   href: 'https://kolonial.no/kategorier/20-frukt-og-gront/21-frukt/',
-    //   name: 'brus',
-    // });
-    // const result = await MenyService(page);
-
-    await fs.writeFileSync('./data/spar.json', JSON.stringify(result.flat(2)));
+    const timestamp = Date.now();
+    fs.mkdirSync(`./data/${timestamp}`);
+    const rKolonial = await KolonialService(page);
+    await fs.writeFileSync(
+      `./data/${timestamp}/kolonial.json`,
+      JSON.stringify(rKolonial.flat(2))
+    );
+    const rSpar = await SparService(page);
+    await fs.writeFileSync(
+      `./data/${timestamp}/spar.json`,
+      JSON.stringify(rSpar.flat(2))
+    );
+    const rMeny = await MenyService(page);
+    await fs.writeFileSync(
+      `./data/${timestamp}/meny.json`,
+      JSON.stringify(rMeny.flat(2))
+    );
   } catch (err) {
     await page.screenshot({
       path: 'error.png',
