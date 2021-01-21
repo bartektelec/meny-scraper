@@ -2,6 +2,7 @@ import fs from 'fs';
 
 import puppeteer from 'puppeteer';
 import KolonialService from './services/kolonial/KolonialService';
+import getProducts from './services/kolonial/ProductListScraper';
 import MenyService from './services/meny/MenyService';
 process.setMaxListeners(Infinity); // <== Important line
 
@@ -16,10 +17,18 @@ async function run() {
   );
 
   try {
-    // const result = await KolonialService(page);
-    const result = await MenyService(page);
+    const result = await KolonialService(page);
+    // const result = await getProducts(page, {
+    //   parentCategory: 'brus',
+    //   href: 'https://kolonial.no/kategorier/20-frukt-og-gront/21-frukt/',
+    //   name: 'brus',
+    // });
+    // const result = await MenyService(page);
 
-    await fs.writeFileSync('./data/meny.json', JSON.stringify(result.flat(2)));
+    await fs.writeFileSync(
+      './data/kolonial.json',
+      JSON.stringify(result.flat(2))
+    );
   } catch (err) {
     await page.screenshot({
       path: 'error.png',
