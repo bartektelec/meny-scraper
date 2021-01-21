@@ -40,10 +40,7 @@ const getProductList = async (
       return {
         title,
         subtitle,
-        category: {
-          sub: category.name,
-          parent: category.parentCategory,
-        },
+        tags: [category.name, category.parentCategory],
         price: {
           price: floatPrice,
           unitPrice: floatUnitPrice,

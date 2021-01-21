@@ -2,13 +2,13 @@ import fs from 'fs';
 
 import puppeteer from 'puppeteer';
 import KolonialService from './services/kolonial/KolonialService';
-import getSubcategories from './services/kolonial/SubcategoryScraper';
+import MenyService from './services/meny/MenyService';
 process.setMaxListeners(Infinity); // <== Important line
 
 async function run() {
   const browser = await puppeteer.launch({
     args: ['--disable-gpu', '--window-size=1920x1080'],
-    headless: true,
+    headless: false,
   });
   const page = await browser.newPage();
   await page.setUserAgent(
@@ -16,9 +16,10 @@ async function run() {
   );
 
   try {
-    const result = await KolonialService(page);
+    // const result = await KolonialService(page);
+    const result = await MenyService(page);
 
-    await fs.writeFileSync('kolonial.json', JSON.stringify(result.flat(2)));
+    await fs.writeFileSync('./data/meny.json', JSON.stringify(result.flat(2)));
   } catch (err) {
     await page.screenshot({
       path: 'error.png',
